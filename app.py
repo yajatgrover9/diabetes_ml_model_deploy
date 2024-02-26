@@ -1,13 +1,36 @@
-import pandas as pd
-import numpy as np
-import warnings
-warnings.filterwarnings("ignore")
+from fastapi import FastAPI
+import uvicorn
 import pickle
-dataset=pd.read_csv("diabetes.csv")
-pd.set_option("display.max_columns",10)
-#print("Rows in dataset = {}\nFeatures in dataset = {}".format(dataset.shape[0],dataset.shape[1]))
-#print(dataset.head())
-#print(dataset.info())
-#print(dataset.isnull().sum())
-#print(dataset.describe())
+from models import Diabetes
+app=FastAPI()
+model=pickle.load(open("model.pkl","rb"))
 
+@app.get("/")
+def greet():
+    return{"Hello! Welcome to Yajat's ML model"}
+@app.get("/{name}")
+def hello(name):
+    return("Hello {}!".format(name))
+
+@app.post("/predict")
+def predict(req:Diabetes):
+    preg=req.pregnancies
+    glucose=req.glucose
+    bp=req.bp
+    skinthickness=req.skinthickness
+    insulin=req.insulin
+    bmi=req.bmi
+    dpf=req.dpf
+    age=req.age
+    features=list([preg,glucose,bp,skinthickness,insulin,bmi,dpf,age])
+    pred=model.predict([features])
+    if (predict == 1):
+        return {"Ans": "You have been tested positive"}
+    else:
+        return {"Ans": "You have been tested negative"}
+
+
+
+
+if __name__=="__main__":
+    uvicorn.run(app)
